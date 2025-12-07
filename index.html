@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agar.io Clone - WASD Edition</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div id="menuOverlay">
+        <div class="menu-box">
+            <h1>Agar.io WASD</h1>
+            <input type="text" id="playerName" placeholder="İsim Girin" maxlength="15">
+            <button id="startButton">OYUNA BAŞLA</button>
+            <div class="controls">
+                <p><strong>W, A, S, D</strong> : Hareket Et</p>
+                <p><strong>SPACE</strong> : Bölün</p>
+                <p><strong>V</strong> : Yem Fırlat</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="uiOverlay" style="display: none;">
+        <div class="score-board">
+            Skor: <span id="scoreDisplay">0</span>
+        </div>
+        <div class="leaderboard">
+            <h3>Liderlik Tablosu</h3>
+            <ul id="leaderboardList"></ul>
+        </div>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <script src="script.js"></script>
+</body>
+</html>
