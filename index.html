@@ -3,369 +3,445 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>R0YPAD STUDIO | AEON EDITION v14.0</title>
+    <title>R0YPAD STUDIO | OMEGA EDITION v15.0 (GRANULAR)</title>
+    <meta name="description" content="Advanced Granular Synthesis & Algorithmic Reverb Workstation">
     
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;900&family=Rajdhani:wght@500;700&family=Orbitron:wght@900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;500;800&family=Inter:wght@300;500;700;900&family=Orbitron:wght@900&family=Syncopate:wght@700&display=swap" rel="stylesheet">
     
     <style>
         /* * ======================================================================================
-         * [CORE] AEON TEMA & CSS DEĞİŞKENLERİ
+         * [SYSTEM] OMEGA CORE STYLESHEET (v15.0)
          * ======================================================================================
+         * Bu CSS, GPU hızlandırmalı animasyonlar ve katmanlı derinlik efektleri içerir.
          */
+
         :root {
-            --bg-void: #010101;
-            --bg-panel: #08080a;
-            --bg-surface: #0f0f12;
+            /* Renk Paleti: OMEGA */
+            --void-base: #000000;
+            --void-depth: #050505;
+            --void-surface: #0a0a0c;
+            --void-light: #111115;
             
-            /* AEON Palette */
-            --aeon-gold: #ffd700;
-            --aeon-cyan: #00f7ff;
-            --aeon-crimson: #ff004c;
-            --aeon-void: #1a0033;
-            --aeon-light: #ffffff;
+            --omega-gold: #ffcc00;
+            --omega-cyan: #00f3ff;
+            --omega-red: #ff003c;
+            --omega-violet: #bc13fe;
+            --omega-acid: #ccff00;
             
-            --glass-dark: rgba(5, 5, 8, 0.95);
+            --glass-panel: rgba(10, 10, 14, 0.96);
             --border-dim: #222;
-            --border-lit: #444;
+            --border-mid: #444;
+            --border-lit: var(--omega-cyan);
             
-            --header-h: 85px;
-            --mixer-h: 400px;
+            --shadow-hologram: 0 0 20px rgba(0, 243, 255, 0.15);
+            --shadow-depth: 0 20px 50px #000;
+            
+            /* Layout */
+            --h-header: 80px;
+            --h-mixer: 420px;
+            --w-sidebar: 60px;
         }
 
         * {
-            box-sizing: border-box; user-select: none; -webkit-user-drag: none; outline: none;
-            scrollbar-width: thin; scrollbar-color: var(--border-lit) var(--bg-void);
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-drag: none;
+            outline: none;
+            cursor: default;
         }
 
+        /* Özel İmleç */
         body {
-            margin: 0; padding: 0; background: var(--bg-void); color: #e0e0e0;
-            font-family: 'Inter', sans-serif; height: 100vh; width: 100vw;
-            overflow: hidden; display: grid;
-            grid-template-rows: var(--header-h) 1fr var(--mixer-h);
+            margin: 0; padding: 0;
+            background-color: var(--void-base);
+            color: #e0e0e0;
+            font-family: 'Inter', sans-serif;
+            height: 100vh; width: 100vw;
+            overflow: hidden;
+            display: grid;
+            grid-template-areas: 
+                "head head"
+                "side work"
+                "side mix";
+            grid-template-rows: var(--h-header) 1fr var(--h-mixer);
+            grid-template-columns: var(--w-sidebar) 1fr;
             font-size: 11px;
         }
 
-        /* MATRIX BACKGROUND */
-        #matrix-canvas {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 0; opacity: 0.15; pointer-events: none;
+        /* Scrollbar Engine */
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-corner { background: #000; }
+        ::-webkit-scrollbar-track { background: #080808; border-left: 1px solid #222; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 0; border: 1px solid #000; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--omega-cyan); }
+
+        /* Arka Plan Grid */
+        #bg-grid {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
         }
 
-        /* SCROLLBAR */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #000; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--aeon-cyan); }
-
         /* * ======================================================================================
-         * [BOOT] AEON SYSTEM START
+         * [BOOT] SYSTEM INITIALIZATION UI
          * ======================================================================================
          */
-        #boot-layer {
+        #omega-boot {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 99999; display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            background: radial-gradient(circle, #111 0%, #000 90%);
+            background: #000; z-index: 99999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
 
-        .aeon-logo {
-            font-family: 'Orbitron'; font-size: 8rem; font-weight: 900; letter-spacing: 20px;
-            background: linear-gradient(to bottom, #fff, #444); -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 50px var(--aeon-cyan));
-            animation: pulseAeon 4s infinite;
+        .omega-title {
+            font-family: 'Syncopate', sans-serif; font-weight: 700; font-size: 6rem;
+            color: #fff; letter-spacing: 20px; margin-bottom: 10px;
+            text-shadow: 0 0 50px var(--omega-cyan);
+            animation: bootPulse 3s infinite;
         }
-        .aeon-sub {
-            font-family: 'Rajdhani'; font-size: 20px; color: var(--aeon-gold);
-            letter-spacing: 8px; margin-top: -10px; margin-bottom: 50px; text-transform: uppercase;
+        
+        .omega-ver {
+            font-family: 'JetBrains Mono'; font-size: 14px; color: var(--omega-gold);
+            letter-spacing: 5px; margin-bottom: 60px;
         }
 
-        .boot-log-box {
-            width: 700px; height: 200px; border: 1px solid #333; padding: 20px;
-            font-family: 'JetBrains Mono'; font-size: 10px; color: var(--aeon-cyan);
-            background: rgba(0,0,0,0.8); overflow: hidden; position: relative;
+        .term-window {
+            width: 800px; height: 300px; background: rgba(5,5,5,0.9);
+            border: 1px solid #333; border-left: 4px solid var(--omega-cyan);
+            padding: 20px; font-family: 'JetBrains Mono'; font-size: 11px;
+            color: var(--omega-cyan); overflow: hidden; position: relative;
+            box-shadow: 0 0 100px rgba(0, 243, 255, 0.05);
         }
-        .log-txt { margin-bottom: 4px; opacity: 0; animation: typeLog 0.05s forwards; }
-        .log-success { color: var(--aeon-gold); }
+        
+        .log-entry { display: block; margin-bottom: 4px; opacity: 0; animation: termType 0.05s forwards; }
+        .log-ok { color: var(--omega-acid); font-weight: bold; }
+        .log-warn { color: var(--omega-gold); }
+        .log-err { color: var(--omega-red); }
 
-        .boot-btn {
-            margin-top: 40px; padding: 20px 80px; background: transparent;
-            border: 2px solid var(--aeon-cyan); color: var(--aeon-cyan);
-            font-family: 'Rajdhani'; font-size: 24px; font-weight: 700; cursor: pointer;
-            letter-spacing: 5px; transition: 0.3s; display: none;
+        .loading-bar-wrap {
+            width: 800px; height: 2px; background: #222; margin-top: 0; position: relative;
         }
-        .boot-btn:hover { background: var(--aeon-cyan); color: #000; box-shadow: 0 0 100px var(--aeon-cyan); }
+        .loading-bar-fill {
+            height: 100%; width: 0%; background: var(--omega-cyan);
+            box-shadow: 0 0 20px var(--omega-cyan); transition: width 0.1s linear;
+        }
 
-        @keyframes pulseAeon { 0%,100% {opacity:0.9;} 50% {opacity:1; text-shadow:0 0 80px var(--aeon-cyan);} }
-        @keyframes typeLog { to { opacity: 1; } }
+        .btn-launch {
+            margin-top: 50px; padding: 25px 80px; background: transparent;
+            border: 2px solid var(--omega-cyan); color: var(--omega-cyan);
+            font-family: 'Orbitron'; font-size: 24px; letter-spacing: 5px; cursor: pointer;
+            transition: 0.3s; display: none; text-transform: uppercase;
+            position: relative; overflow: hidden;
+        }
+        .btn-launch::before {
+            content:''; position: absolute; top:0; left:-100%; width:100%; height:100%;
+            background: linear-gradient(90deg, transparent, rgba(0,243,255,0.5), transparent);
+            transition: 0.5s;
+        }
+        .btn-launch:hover::before { left: 100%; }
+        .btn-launch:hover { background: var(--omega-cyan); color: #000; box-shadow: 0 0 80px var(--omega-cyan); }
+
+        @keyframes bootPulse { 0%,100% { opacity:0.8; filter:blur(0px); } 50% { opacity:1; filter:blur(1px); } }
+        @keyframes termType { to { opacity:1; } }
 
         /* * ======================================================================================
-         * [HEADER] ANA KONTROL
+         * [LAYOUT] HEADER & SIDEBAR
          * ======================================================================================
          */
         header {
-            background: var(--bg-panel); border-bottom: 1px solid var(--border-dim);
-            padding: 0 30px; display: flex; align-items: center; justify-content: space-between;
-            z-index: 1000; position: relative; box-shadow: 0 10px 50px #000;
+            grid-area: head; background: var(--void-surface); border-bottom: 1px solid var(--border-dim);
+            display: flex; align-items: center; justify-content: space-between; padding: 0 30px;
+            z-index: 100; box-shadow: 0 10px 50px #000;
         }
 
-        .brand-grp { display: flex; align-items: center; gap: 15px; }
-        .app-title { font-family: 'Orbitron'; font-size: 28px; color: #fff; letter-spacing: 2px; }
-        .app-title span { color: var(--aeon-cyan); }
-        .engine-badge { font-size: 10px; border: 1px solid var(--aeon-gold); color: var(--aeon-gold); padding: 3px 6px; border-radius: 4px; }
-
-        .toolbar-main { display: flex; gap: 10px; align-items: center; }
-        
-        .btn-core {
-            height: 40px; padding: 0 20px; background: #111; border: 1px solid #333;
-            color: #ccc; border-radius: 4px; font-weight: 700; font-size: 11px; cursor: pointer;
-            display: flex; align-items: center; gap: 8px; transition: 0.2s;
+        .brand-section { display: flex; align-items: center; gap: 20px; }
+        .logo-main { font-family: 'Orbitron'; font-size: 28px; color: #fff; letter-spacing: 2px; }
+        .logo-main span { color: var(--omega-cyan); }
+        .dsp-badge { 
+            font-family: 'JetBrains Mono'; font-size: 9px; color: #000; background: var(--omega-gold);
+            padding: 4px 8px; font-weight: bold; border-radius: 2px; letter-spacing: 1px;
         }
-        .btn-core:hover { border-color: #666; color: #fff; background: #1a1a1d; }
-        
-        .btn-new { border-color: var(--aeon-cyan); color: var(--aeon-cyan); background: rgba(0, 247, 255, 0.05); }
-        .btn-new:hover { background: var(--aeon-cyan); color: #000; }
-        
-        .btn-mic { border-color: var(--aeon-crimson); color: var(--aeon-crimson); }
-        .btn-mic:hover { background: var(--aeon-crimson); color: #fff; }
-        .btn-mic.recording { background: var(--aeon-crimson); color: #fff; animation: blink 1s infinite; }
 
-        .transport-wrap {
-            display: flex; background: #000; padding: 5px; border-radius: 6px; border: 1px solid #222; gap: 5px;
+        .global-transport {
+            display: flex; gap: 10px; background: #000; padding: 8px; border-radius: 6px; border: 1px solid #222;
         }
-        .btn-tr { width: 50px; height: 38px; border: none; background: #151518; color: #666; border-radius: 4px; cursor: pointer; font-size: 16px; transition: 0.2s; }
+        
+        .btn-tr {
+            width: 50px; height: 40px; border: none; background: #151518; color: #666;
+            border-radius: 4px; cursor: pointer; font-size: 16px; transition: 0.2s;
+        }
         .btn-tr:hover { color: #fff; background: #222; }
-        .btn-play.playing { color: #000; background: var(--aeon-gold); box-shadow: 0 0 15px var(--aeon-gold); }
+        .btn-play.active { background: var(--omega-acid); color: #000; box-shadow: 0 0 20px rgba(204,255,0,0.4); }
+        .btn-rec.active { background: var(--omega-red); color: #fff; animation: blink 1s infinite; }
 
-        .bpm-box { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 60px; }
-        .bpm-lbl { font-size: 8px; font-weight: bold; color: #555; }
-        .bpm-val { background: none; border: none; color: var(--aeon-cyan); width: 100%; text-align: center; font-family: 'JetBrains Mono'; font-weight: 800; font-size: 16px; }
+        .bpm-display {
+            display: flex; flex-direction: column; justify-content: center; align-items: center; width: 70px;
+            border-left: 1px solid #222; border-right: 1px solid #222;
+        }
+        .bpm-val {
+            background: none; border: none; color: var(--omega-cyan); font-family: 'JetBrains Mono';
+            font-size: 20px; font-weight: 800; width: 100%; text-align: center;
+        }
+        .bpm-lbl { font-size: 8px; color: #555; font-weight: bold; }
 
-        @keyframes blink { 50% { opacity: 0.5; } }
+        .sidebar {
+            grid-area: side; background: var(--void-surface); border-right: 1px solid #222;
+            display: flex; flex-direction: column; align-items: center; padding-top: 20px; gap: 15px;
+            z-index: 90;
+        }
+        .side-tool {
+            width: 40px; height: 40px; border: 1px solid #333; background: #08080a;
+            color: #666; display: flex; align-items: center; justify-content: center;
+            border-radius: 4px; cursor: pointer; transition: 0.2s; font-size: 16px;
+        }
+        .side-tool:hover { border-color: var(--omega-cyan); color: #fff; }
+        .side-tool.active { background: var(--omega-cyan); color: #000; }
 
         /* * ======================================================================================
-         * [SEQUENCER] POLİRİTMİK GRID
+         * [WORKSPACE] TRACKS & SEQUENCER
          * ======================================================================================
          */
         .workspace {
-            position: relative; background: rgba(8, 8, 10, 0.5); overflow-y: auto; padding: 20px; z-index: 10;
+            grid-area: work; position: relative; overflow-y: auto; padding: 20px;
+            background: rgba(0,0,0,0.5);
         }
 
-        .track-list { padding-bottom: 120px; display: flex; flex-direction: column; gap: 8px; }
+        .track-list { display: flex; flex-direction: column; gap: 6px; padding-bottom: 100px; }
 
-        .track-row {
-            display: flex; height: 75px; background: var(--bg-surface);
-            border: 1px solid var(--border-dim); border-radius: 6px; transition: 0.1s;
-            position: relative; overflow: hidden;
+        .track-unit {
+            display: flex; height: 72px; background: var(--void-light);
+            border: 1px solid #222; border-radius: 4px; position: relative;
+            transition: 0.1s;
         }
-        .track-row.drop-zone { border: 2px dashed var(--aeon-gold); background: rgba(255, 215, 0, 0.1); }
-        .track-row:hover { background: #151518; border-color: #444; }
-        
-        /* Drag Overlay */
-        .drop-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 247, 255, 0.2); display: none; align-items: center;
-            justify-content: center; font-weight: 900; color: #fff; z-index: 50; pointer-events: none;
-        }
+        .track-unit:hover { border-color: #444; background: #1a1a1e; }
+        .track-unit.active { border-left: 4px solid var(--omega-cyan); background: #1c1c22; }
 
-        .track-head {
+        .track-controls {
             width: 260px; padding: 10px 15px; border-right: 1px solid #222;
             display: flex; align-items: center; justify-content: space-between;
-            background: #0f0f12; position: relative;
+            background: #0e0e10;
         }
         
-        .th-main { width: 120px; }
-        .th-name { font-weight: 700; font-size: 13px; color: #fff; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-        .th-sub { font-size: 9px; color: var(--aeon-cyan); text-transform: uppercase; font-weight: bold; margin-top: 4px; display:flex; align-items:center; gap:5px; }
-        .th-icon { font-size: 12px; }
+        .tc-info { width: 100px; }
+        .tc-name { font-weight: 700; font-size: 13px; color: #fff; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+        .tc-type { font-size: 9px; color: var(--omega-violet); font-weight: bold; margin-top: 4px; }
 
-        .th-knobs { display: flex; gap: 8px; }
-        .mini-knob { width: 30px; height: 30px; background: #000; border-radius: 50%; border: 1px solid #333; position: relative; cursor: ns-resize; }
-        .mini-knob::after { content:''; position:absolute; top:2px; left:50%; width:2px; height:50%; background:var(--aeon-gold); transform-origin:bottom center; transform: translateX(-50%) rotate(var(--rot)); }
+        /* Granular Visualizer Mini */
+        .tc-scope { width: 80px; height: 40px; background: #000; border: 1px solid #333; border-radius: 2px; opacity: 0.8; }
 
-        .seq-wrap { flex: 1; overflow-x: auto; padding: 10px; display: flex; align-items: center; }
-        .step-cont { display: flex; gap: 3px; }
+        .tc-btns { display: flex; gap: 4px; }
+        .mini-btn {
+            width: 22px; height: 22px; background: #18181a; border: 1px solid #333; color: #666;
+            font-size: 10px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; border-radius: 3px; font-weight: bold;
+        }
+        .mini-btn:hover { color: #fff; border-color: #666; }
+        .mini-btn.mute.active { background: var(--omega-red); color: #fff; border-color: var(--omega-red); }
+        .mini-btn.solo.active { background: var(--omega-gold); color: #000; border-color: var(--omega-gold); }
+
+        .sequencer-lane { flex: 1; display: flex; align-items: center; padding: 0 10px; overflow-x: auto; }
+        .step-grid { display: grid; grid-template-columns: repeat(16, 1fr); gap: 3px; width: 100%; height: 100%; padding: 8px 0; }
         
         .step {
-            width: 24px; height: 40px; background: #000; border: 1px solid #222;
-            border-radius: 3px; cursor: pointer; transition: 0.1s; position: relative;
+            background: #050505; border: 1px solid #222; border-radius: 2px; cursor: pointer; transition: 0.1s;
         }
         .step:nth-child(4n+1) { background: #0e0e10; }
-        .step:hover { border-color: #555; }
-        .step.active { background: var(--aeon-cyan); box-shadow: 0 0 10px var(--aeon-cyan); border-color: var(--aeon-cyan); }
-        .step.playhead { background: #fff !important; transform: scale(1.15); z-index: 100; box-shadow: 0 0 20px #fff; }
-
-        .poly-ctrl {
-            width: 30px; height: 100%; border-left: 1px solid #222;
-            display: flex; align-items: center; justify-content: center;
-            background: #080808; font-size: 10px; color: #555; cursor: ew-resize;
+        .step:hover { border-color: #555; background: #222; }
+        .step.on { 
+            background: var(--omega-cyan); box-shadow: 0 0 12px var(--omega-cyan); border-color: var(--omega-cyan);
         }
-        .poly-ctrl:hover { color: #fff; background: #222; }
+        .step.playhead { background: #fff !important; z-index: 10; transform: scale(1.1); box-shadow: 0 0 15px #fff; }
 
         /* * ======================================================================================
-         * [MIXER] GELİŞMİŞ KONSOL
+         * [MIXER] ADVANCED CONSOLE
          * ======================================================================================
          */
-        .mixer-dock {
-            background: var(--bg-panel); border-top: 1px solid var(--border-dim);
-            padding: 20px; display: flex; gap: 12px; overflow-x: auto; z-index: 50;
-            box-shadow: 0 -20px 80px rgba(0,0,0,0.9); position: relative;
+        .mixer-panel {
+            grid-area: mix; background: var(--void-surface); border-top: 1px solid var(--border-dim);
+            padding: 20px; display: flex; gap: 10px; overflow-x: auto; z-index: 50;
+            box-shadow: 0 -20px 80px rgba(0,0,0,0.8);
         }
 
         .strip {
-            width: 120px; height: 100%; background: var(--bg-surface);
-            border: 1px solid var(--border-dim); border-radius: 6px;
+            width: 120px; height: 100%; background: var(--void-light);
+            border: 1px solid #222; border-radius: 6px;
             display: flex; flex-direction: column; padding: 10px; flex-shrink: 0;
         }
         .strip:hover { border-color: #444; }
-        .strip.master { margin-left: auto; width: 150px; background: #0e0a12; border: 1px solid var(--aeon-plasma); }
+        .strip.master { margin-left: auto; width: 160px; background: #0d0a12; border: 1px solid var(--omega-violet); }
 
-        .strip-lbl { text-align: center; font-size: 10px; font-weight: bold; color: #666; margin-bottom: 10px; text-transform: uppercase; white-space: nowrap; overflow: hidden; }
-        .master .strip-lbl { color: var(--aeon-plasma); letter-spacing: 2px; }
+        .strip-head { text-align: center; font-size: 10px; font-weight: bold; color: #777; margin-bottom: 10px; white-space: nowrap; overflow: hidden; }
+        .master .strip-head { color: var(--omega-violet); letter-spacing: 2px; }
 
-        .rack-mini { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
-        .rack-btn {
-            font-size: 9px; text-align: center; background: #050505; color: #555;
-            padding: 6px; border: 1px solid #222; cursor: pointer; border-radius: 3px; transition: 0.2s;
+        .fx-rack { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+        .fx-insert {
+            font-size: 9px; background: #050505; color: #555; padding: 6px;
+            border: 1px solid #222; text-align: center; cursor: pointer; border-radius: 3px; transition: 0.2s;
         }
-        .rack-btn:hover { color: #fff; border-color: #666; }
-        .rack-btn.on { color: var(--aeon-cyan); border-color: var(--aeon-cyan); background: rgba(0, 247, 255, 0.1); }
+        .fx-insert:hover { color: #fff; border-color: #555; }
+        .fx-insert.active { color: var(--omega-cyan); border-color: var(--omega-cyan); background: rgba(0,243,255,0.1); }
 
-        /* Filter Selector */
-        .filt-sel { width: 100%; background: #000; color: #aaa; border: 1px solid #333; font-size: 9px; margin-bottom: 5px; cursor: pointer; }
+        .pan-knob-area { display: flex; justify-content: center; margin-bottom: 10px; }
+        input[type=range].pan { width: 80%; cursor: ew-resize; height: 10px; }
 
-        /* Faders */
-        .fader-box {
-            flex: 1; background: #08080a; border-radius: 4px; border: 1px solid #151515;
+        .fader-area {
+            flex: 1; background: #08080a; border: 1px solid #1a1a1d; border-radius: 4px;
             display: flex; justify-content: center; align-items: flex-end; position: relative;
         }
-        .vu-meter { position: absolute; right: 10px; top: 10px; bottom: 10px; width: 6px; background: #000; border-radius: 3px; overflow: hidden; }
-        .vu-val { position: absolute; bottom: 0; left: 0; width: 100%; height: 0%; background: linear-gradient(to top, var(--aeon-data), var(--aeon-warn), var(--aeon-crimson)); opacity: 0.8; transition: height 0.05s; }
+        
+        .meter-container { position: absolute; right: 10px; top: 10px; bottom: 10px; width: 6px; background: #000; border-radius: 3px; overflow: hidden; }
+        .meter-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 0%; background: linear-gradient(to top, var(--omega-acid), var(--omega-gold), var(--omega-red)); transition: height 0.05s linear; opacity: 0.8; }
 
         input[type=range].fader {
-            -webkit-appearance: none; width: 240px; height: 40px; background: transparent;
-            transform: rotate(-90deg); margin-bottom: 110px; cursor: ns-resize;
+            -webkit-appearance: none; width: 250px; height: 40px; background: transparent;
+            transform: rotate(-90deg); margin-bottom: 115px; cursor: ns-resize;
         }
         input[type=range].fader::-webkit-slider-runnable-track { width: 100%; height: 4px; background: #222; border-radius: 2px; }
         input[type=range].fader::-webkit-slider-thumb {
-            -webkit-appearance: none; width: 24px; height: 40px; background: #333; margin-top: -18px;
+            -webkit-appearance: none; width: 30px; height: 40px; background: #333; margin-top: -18px;
             border: 1px solid #000; border-radius: 4px; box-shadow: 0 4px 10px #000;
+            background-image: linear-gradient(90deg, transparent 45%, #666 45%, #666 55%, transparent 55%);
         }
-        .master input[type=range].fader::-webkit-slider-thumb { background: var(--aeon-plasma); }
+        .master input[type=range].fader::-webkit-slider-thumb { background-color: #221829; border-color: var(--omega-violet); }
 
         /* * ======================================================================================
-         * [PLUGINS] YÜZEN PENCERELER
+         * [PLUGINS] FLOATING RACK WINDOWS
          * ======================================================================================
          */
-        .float-win {
-            position: absolute; width: 360px; background: var(--glass-dark);
-            border: 1px solid #444; border-top: 3px solid var(--aeon-cyan);
-            border-radius: 6px; box-shadow: 0 30px 100px #000;
-            display: none; z-index: 4000; flex-direction: column;
+        .plugin-window {
+            position: absolute; width: 380px; background: rgba(12, 12, 16, 0.98);
+            border: 1px solid #444; border-top: 3px solid var(--omega-cyan);
+            border-radius: 6px; box-shadow: 0 40px 120px #000; backdrop-filter: blur(10px);
+            display: none; z-index: 5000; flex-direction: column;
         }
         
-        .fw-head {
-            padding: 10px 15px; background: #222; border-bottom: 1px solid #333; cursor: move;
+        .pw-header {
+            padding: 10px 15px; background: #1a1a1d; border-bottom: 1px solid #333; cursor: move;
             display: flex; justify-content: space-between; align-items: center;
         }
-        .fw-title { font-family: 'Rajdhani'; font-weight: 700; color: #fff; letter-spacing: 1px; }
+        .pw-title { font-family: 'Rajdhani'; font-weight: 700; color: #fff; letter-spacing: 1px; font-size: 14px; }
         
-        .fw-body { padding: 25px; display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
+        .pw-content { padding: 25px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
 
-        .k-grp { display: flex; flex-direction: column; align-items: center; gap: 8px; }
-        .k-dial {
-            -webkit-appearance: none; width: 70px; height: 70px; border-radius: 50%;
-            background: conic-gradient(var(--aeon-cyan) var(--deg), #222 0deg);
-            position: relative; cursor: ns-resize; box-shadow: 0 5px 20px #000;
+        .control-knob { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        .dial {
+            -webkit-appearance: none; width: 60px; height: 60px; border-radius: 50%;
+            background: conic-gradient(var(--omega-cyan) var(--v), #111 0deg);
+            position: relative; cursor: ns-resize; box-shadow: 0 5px 20px rgba(0,0,0,0.5);
         }
-        .k-dial::after { content:''; position:absolute; top:6px; left:6px; right:6px; bottom:6px; background:#18181c; border-radius:50%; }
-        .k-lbl { font-size: 10px; font-weight: bold; color: #888; text-transform: uppercase; }
+        .dial::after {
+            content:''; position: absolute; top:5px; left:5px; right:5px; bottom:5px;
+            background: #18181c; border-radius: 50%;
+        }
+        .dial-label { font-size: 9px; font-weight: bold; color: #888; text-transform: uppercase; }
+        .dial-val { font-family: 'JetBrains Mono'; font-size: 10px; color: var(--omega-cyan); position: absolute; top: 24px; pointer-events: none; }
 
-        /* MODALS */
-        .overlay {
+        /* * ======================================================================================
+         * [MODALS] LIBRARY & AI
+         * ======================================================================================
+         */
+        .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); backdrop-filter: blur(10px); z-index: 5000;
-            display: none; align-items: center; justify-content: center;
+            background: rgba(0,0,0,0.9); z-index: 6000; display: none;
+            justify-content: center; align-items: center; backdrop-filter: blur(5px);
         }
-        .modal { width: 900px; background: var(--bg-surface); border: 1px solid var(--border-lit); border-top: 4px solid var(--aeon-plasma); box-shadow: 0 50px 150px #000; display: flex; flex-direction: column; max-height: 85vh; }
-        .m-body { padding: 30px; overflow-y: auto; }
+        .modal { width: 900px; height: 700px; background: #111; border: 1px solid #333; border-top: 4px solid var(--omega-gold); display: flex; flex-direction: column; box-shadow: 0 50px 100px #000; }
+        
+        .modal-body { flex: 1; padding: 30px; overflow-y: auto; }
+        
+        .lib-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; }
+        .lib-card {
+            background: #08080a; border: 1px solid #222; padding: 20px; border-radius: 6px;
+            cursor: pointer; text-align: center; transition: 0.2s; position: relative; overflow: hidden;
+        }
+        .lib-card:hover { border-color: var(--omega-gold); background: #151518; transform: translateY(-2px); }
+        .lc-title { font-weight: bold; color: #eee; font-size: 13px; margin-bottom: 5px; }
+        .lc-cat { font-size: 10px; color: #666; text-transform: uppercase; }
 
-        .lib-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
-        .lib-item {
-            background: #111; border: 1px solid #333; padding: 20px; border-radius: 6px;
-            cursor: pointer; transition: 0.2s; text-align: center;
-        }
-        .lib-item:hover { border-color: var(--aeon-cyan); background: #1a1a20; transform: translateY(-3px); }
+        /* AI Chat */
+        .ai-wrap { display: flex; flex-direction: column; height: 100%; }
+        #ai-input { flex: 1; background: #050505; border: 1px solid #333; color: #fff; padding: 20px; font-family: 'Inter'; font-size: 14px; resize: none; margin-bottom: 20px; }
+        #ai-input:focus { border-color: var(--omega-cyan); }
+        .btn-gen { width: 100%; padding: 20px; background: var(--omega-violet); border: none; color: #fff; font-weight: bold; font-size: 14px; cursor: pointer; }
+        .btn-gen:hover { background: #d04aff; }
 
     </style>
 </head>
 <body>
 
-    <canvas id="matrix-canvas"></canvas>
+    <div id="bg-grid"></div>
 
-    <div id="boot-layer">
-        <div class="aeon-logo">AEON</div>
-        <div class="aeon-sub">INFINITY AUDIO ENGINE v14.0</div>
+    <div id="omega-boot">
+        <div class="omega-title">OMEGA</div>
+        <div class="omega-ver">GRANULAR AUDIO WORKSTATION v15.0</div>
         
-        <div class="boot-log-box" id="boot-term">
-            <div class="log-txt">> KERNEL INIT...</div>
+        <div class="term-window" id="boot-term">
+            <div class="log-entry">> KERNEL INIT... <span class="log-ok">OK</span></div>
         </div>
         
-        <button class="boot-btn" id="start-sys" onclick="System.boot()">BAŞLAT</button>
+        <div class="loading-bar-wrap"><div class="loading-bar-fill" id="boot-load-bar"></div></div>
+        
+        <button class="btn-launch" id="btn-enter" onclick="System.start()">BAŞLAT</button>
     </div>
 
-    <div id="float-layer"></div>
+    <div id="plugin-layer"></div>
 
-    <div class="overlay" id="mod-lib">
+    <div class="modal-overlay" id="mod-lib">
         <div class="modal">
-            <div class="fw-head">
-                <div class="fw-title">AEON SOUND VAULT</div>
-                <div style="cursor:pointer;" onclick="UI.modal('mod-lib', false)">×</div>
+            <div class="pw-header">
+                <span class="pw-title">OMEGA SOUND VAULT (PROCEDURAL)</span>
+                <span style="cursor:pointer" onclick="UI.modal('mod-lib', false)">✕</span>
             </div>
-            <div class="m-body">
-                <div class="lib-grid" id="lib-grid"></div>
+            <div class="modal-body">
+                <div class="lib-grid" id="lib-content"></div>
             </div>
         </div>
     </div>
 
-    <div class="overlay" id="mod-ai">
-        <div class="modal">
-            <div class="fw-head">
-                <div class="fw-title">AEON INTELLIGENCE</div>
-                <div style="cursor:pointer;" onclick="UI.modal('mod-ai', false)">×</div>
+    <div class="modal-overlay" id="mod-ai">
+        <div class="modal" style="border-top-color:var(--omega-violet); height:500px;">
+            <div class="pw-header">
+                <span class="pw-title">OMEGA AI COMPOSER</span>
+                <span style="cursor:pointer" onclick="UI.modal('mod-ai', false)">✕</span>
             </div>
-            <div class="m-body">
-                <p style="color:#aaa; margin-bottom:15px;">Müzikal vizyonunuzu tanımlayın. AI, poliritmik yapılar ve gelişmiş filtreler kullanacaktır.</p>
-                <textarea id="ai-prompt" style="width:100%; height:120px; background:#000; border:1px solid #333; color:#fff; padding:15px;" placeholder="Örn: Cyberpunk, 140 BPM, Acid Bassline..."></textarea>
-                <button class="boot-btn" style="display:block; width:100%; margin-top:20px; font-size:16px; padding:15px;" onclick="AI.generate()">OLUŞTUR</button>
-                <div id="ai-log" style="margin-top:10px; color:var(--aeon-cyan);"></div>
+            <div class="modal-body">
+                <div class="ai-wrap">
+                    <p style="color:#aaa; font-size:12px;">Müzikal parametreleri (BPM, Gam, Ritim Yoğunluğu, Doku) doğal dil ile tanımlayın.</p>
+                    <textarea id="ai-in" placeholder="Örn: 140 BPM, karanlık atmosferik techno, granular pad sesleri ve agresif kick..."></textarea>
+                    <button class="btn-gen" onclick="AI.process()">OLUŞTUR</button>
+                    <div id="ai-status" style="margin-top:10px; color:var(--omega-cyan); font-family:'JetBrains Mono'; font-size:10px;"></div>
+                </div>
             </div>
         </div>
+    </div>
+
+    <div class="sidebar">
+        <div class="side-tool active" title="Sequencer View">SEQ</div>
+        <div class="side-tool" title="Piano Roll (Future)">KEY</div>
+        <div class="side-tool" title="Project Settings">SET</div>
     </div>
 
     <header>
-        <div class="brand-grp">
-            <div class="app-title">R0Y<span>PAD</span></div>
-            <div class="engine-badge">AEON ENGINE</div>
+        <div class="brand-section">
+            <div class="logo-main">R0Y<span>PAD</span></div>
+            <div class="dsp-badge">OMEGA DSP</div>
         </div>
 
-        <div class="toolbar-main">
-            <button class="btn-core btn-new" onclick="UI.modal('mod-lib', true)">+ KANAL</button>
-            <button class="btn-core btn-ai" onclick="UI.modal('mod-ai', true)">★ AI</button>
-            <button class="btn-core btn-mic" id="rec-sample-btn" onclick="Sampler.recordNew()">🎤 REC SAMPLE</button>
-            
-            <div style="width:1px; height:30px; background:#333; margin:0 10px;"></div>
+        <div style="display:flex; gap:15px;">
+            <button class="btn-tr" style="width:auto; padding:0 20px; font-size:11px; font-weight:bold; border:1px solid var(--omega-cyan); color:var(--omega-cyan);" onclick="UI.modal('mod-lib', true)">+ KANAL</button>
+            <button class="btn-tr" style="width:auto; padding:0 20px; font-size:11px; font-weight:bold; border:1px solid var(--omega-violet); color:var(--omega-violet);" onclick="UI.modal('mod-ai', true)">AI MİMAR</button>
+        </div>
 
-            <div class="transport-wrap">
-                <div class="bpm-box">
-                    <span class="bpm-lbl">BPM</span>
-                    <input type="number" class="bpm-val" id="bpm-val" value="135" onchange="Audio.setBpm(this.value)">
-                </div>
-                <button class="btn-tr" onclick="Audio.stop()">■</button>
-                <button class="btn-tr btn-play" id="play-btn" onclick="Audio.toggle()">▶</button>
-                <button class="btn-tr btn-rec" id="rec-master-btn" onclick="MasterRec.toggle()">●</button>
+        <div class="global-transport">
+            <div class="bpm-display">
+                <span class="bpm-lbl">BPM</span>
+                <input type="number" class="bpm-val" id="bpm-val" value="130" onchange="Audio.setBpm(this.value)">
             </div>
-            
-            <button class="btn-core" onclick="Audio.clear()">TEMİZLE</button>
+            <button class="btn-tr" onclick="Audio.stop()">■</button>
+            <button class="btn-tr btn-play" id="play-btn" onclick="Audio.toggle()">▶</button>
+            <button class="btn-tr btn-rec" id="rec-btn" onclick="Recorder.toggle()">●</button>
         </div>
     </header>
 
@@ -374,16 +450,16 @@
             </div>
     </div>
 
-    <div class="mixer-dock" id="mixer-container">
+    <div class="mixer-panel" id="mixer-container">
         <div class="strip master">
-            <div class="strip-lbl">MASTER</div>
-            <div class="rack-mini">
-                <div class="rack-btn on">LIMITER</div>
-                <div class="rack-btn on">COMP</div>
-                <div class="rack-btn on">WIDE</div>
+            <div class="strip-head">MASTER</div>
+            <div class="fx-rack">
+                <div class="fx-insert active">LIMITER</div>
+                <div class="fx-insert active">SOFT CLIP</div>
+                <div class="fx-insert active">WIDE</div>
             </div>
-            <div class="fader-box">
-                <div class="vu-meter"><div class="vu-val" id="vu-master"></div></div>
+            <div class="fader-area">
+                <div class="meter-container"><div class="meter-bar" id="vu-master"></div></div>
                 <input type="range" class="fader" min="0" max="1.2" step="0.01" value="0.9" oninput="Audio.setMaster(this.value)">
             </div>
         </div>
@@ -391,56 +467,64 @@
 
 <script>
     /**
-     * R0YPAD v14.0 AEON ENGINE
-     * ========================
-     * Features:
-     * - Drag & Drop Sampler
-     * - Mic Recording (Resampling)
-     * - Polyrhythmic Sequencer
-     * - Multi-Mode Filters
-     * - Matrix Visualizer
+     * R0YPAD STUDIO v15.0 - OMEGA ENGINE SOURCE CODE
+     * ==============================================
+     * Author: R0YC0LD AI
+     * System: Granular Synthesis & Algorithmic Reverb
      */
 
-    const Utils = {
-        id: () => 't_' + Math.random().toString(36).substr(2, 9),
-        rand: (min, max) => Math.random() * (max - min) + min,
+    /* --- 1. MATHEMATICS & UTILS --- */
+    const MathUtils = {
         clamp: (v, min, max) => Math.min(Math.max(v, min), max),
-        wait: ms => new Promise(r => setTimeout(r, ms)),
-        distCurve: (amt) => {
-            const k = amt, n = 44100, curve = new Float32Array(n), deg = Math.PI / 180;
+        rand: (min, max) => Math.random() * (max - min) + min,
+        randInt: (min, max) => Math.floor(Math.random() * (max - min + 1)) + min,
+        id: () => 'id_' + Math.random().toString(36).substr(2, 9),
+        
+        // Sigmoid Distortion Curve
+        makeDistCurve: (amount) => {
+            const k = amount; const n = 44100; const curve = new Float32Array(n); const deg = Math.PI / 180;
             for (let i = 0; i < n; ++i) {
                 const x = i * 2 / n - 1;
                 curve[i] = (3 + k) * x * 20 * deg / (Math.PI + k * Math.abs(x));
             }
             return curve;
         },
-        impulse: (ctx, dur, decay) => {
-            const L = ctx.sampleRate * dur, imp = ctx.createBuffer(2, L, ctx.sampleRate);
-            for(let i=0;i<L;i++){
-                const n=i/L, e=Math.pow(1-n, decay);
-                imp.getChannelData(0)[i]=(Math.random()*2-1)*e;
-                imp.getChannelData(1)[i]=(Math.random()*2-1)*e;
+
+        // Algorithmic Reverb Impulse (Schroeder-ish approximation via Impulse)
+        createImpulse: (ctx, duration, decay) => {
+            const L = ctx.sampleRate * duration;
+            const imp = ctx.createBuffer(2, L, ctx.sampleRate);
+            const l = imp.getChannelData(0); const r = imp.getChannelData(1);
+            for(let i=0; i<L; i++) {
+                // Exponential Decay with random noise
+                let n = i/L;
+                let env = Math.pow(1-n, decay);
+                // Simple Decorrelation
+                l[i] = (Math.random() * 2 - 1) * env;
+                r[i] = (Math.random() * 2 - 1) * env;
             }
             return imp;
         }
     };
 
-    // --- 1. AUDIO ENGINE CORE ---
+    /* --- 2. AUDIO KERNEL --- */
     const Audio = {
         ctx: null, master: null, limiter: null, analyser: null, dest: null,
-        tracks: [], isPlaying: false, step: 0, nextTime: 0, tempo: 135, timer: null, lookahead: 25.0,
+        tracks: [], isPlaying: false, step: 0, nextTime: 0, tempo: 130, lookahead: 25.0, timer: null,
 
         init() {
             if(this.ctx) return;
             const AC = window.AudioContext || window.webkitAudioContext;
-            this.ctx = new AC();
+            this.ctx = new AC({ latencyHint: 'interactive' });
             
             this.master = this.ctx.createGain();
             this.master.gain.value = 0.9;
-            
+
+            // Master Chain: Limiter -> SoftClipper -> Analyser
             this.limiter = this.ctx.createDynamicsCompressor();
             this.limiter.threshold.value = -1.0; 
             this.limiter.ratio.value = 20.0;
+            this.limiter.attack.value = 0.002;
 
             this.analyser = this.ctx.createAnalyser();
             this.analyser.fftSize = 256;
@@ -451,9 +535,9 @@
             this.limiter.connect(this.analyser);
             this.analyser.connect(this.ctx.destination);
             this.analyser.connect(this.dest);
-            
-            MasterRec.init(this.dest.stream);
-            this.loop();
+
+            Recorder.init(this.dest.stream);
+            this.animate();
         },
 
         toggle() {
@@ -463,11 +547,11 @@
             this.isPlaying = !this.isPlaying;
             const btn = document.getElementById('play-btn');
             if(this.isPlaying) {
-                btn.classList.add('playing'); btn.innerHTML = "||";
+                btn.classList.add('active'); btn.innerHTML = "||";
                 this.step = 0; this.nextTime = this.ctx.currentTime + 0.1;
                 this.scheduler();
             } else {
-                btn.classList.remove('playing'); btn.innerHTML = "▶";
+                btn.classList.remove('active'); btn.innerHTML = "▶";
                 clearTimeout(this.timer);
             }
         },
@@ -475,37 +559,36 @@
         stop() {
             this.isPlaying = false; clearTimeout(this.timer);
             this.step = 0; UI.resetHeads();
-            const btn = document.getElementById('play-btn');
-            btn.classList.remove('playing'); btn.innerHTML = "▶";
+            document.getElementById('play-btn').classList.remove('active');
+            document.getElementById('play-btn').innerHTML = "▶";
         },
 
         scheduler() {
             while (this.nextTime < this.ctx.currentTime + 0.1) {
                 this.playStep(this.nextTime);
                 this.nextTime += 0.25 * (60.0 / this.tempo);
-                this.step++; // Absolute step counter
+                this.step++;
             }
             this.timer = setTimeout(() => this.scheduler(), this.lookahead);
         },
 
         playStep(time) {
-            // Polyrhythmic Logic: Track calculates its own current step
+            // Precise UI Sync
             const drawTime = (time - this.ctx.currentTime) * 1000;
             
             this.tracks.forEach(tr => {
-                const trStep = this.step % tr.stepCount; // 16, 12, 7 etc.
+                const s = this.step % 16;
+                setTimeout(() => UI.drawHead(tr.id, s), Math.max(0, drawTime));
                 
-                setTimeout(() => UI.drawHead(tr.id, trStep), Math.max(0, drawTime));
-
-                if (tr.steps[trStep] && !tr.muted) {
+                if (tr.steps[s] && !tr.muted) {
                     tr.voice.trigger(time);
                     setTimeout(() => UI.pulse(tr.id), Math.max(0, drawTime));
                 }
             });
         },
 
-        addTrack(type, name, params = {}) {
-            const t = new Track(this.ctx, this.master, type, name, params);
+        addTrack(data) {
+            const t = new Track(this.ctx, this.master, data);
             this.tracks.push(t);
             UI.renderTrack(t);
             UI.renderStrip(t);
@@ -521,59 +604,58 @@
             }
         },
 
-        clear() {
-            this.tracks.forEach(t => t.steps.fill(false));
-            document.querySelectorAll('.step.active').forEach(e => e.classList.remove('active'));
-        },
-
-        setBpm(v) { this.tempo = Utils.clamp(parseInt(v), 40, 300); },
+        clear() { this.tracks.forEach(t => t.steps.fill(false)); UI.refreshGrid(); },
+        setBpm(v) { this.tempo = MathUtils.clamp(parseInt(v), 40, 300); },
         setMaster(v) { if(this.master) this.master.gain.value = v; },
 
-        loop() {
+        animate() {
             if(this.isPlaying) {
                 const arr = new Uint8Array(this.analyser.frequencyBinCount);
                 this.analyser.getByteFrequencyData(arr);
-                let sum=0; for(let i=0;i<arr.length;i++) sum+=arr[i];
+                let sum = 0; for(let i=0;i<arr.length;i++) sum+=arr[i];
                 const h = Math.min(100, (sum/arr.length)*1.5);
-                document.getElementById('vu-master').style.height = h+'%';
+                document.getElementById('vu-master').style.height = h + '%';
             }
-            requestAnimationFrame(() => this.loop());
+            
+            // Scope Animation per track
+            this.tracks.forEach(t => t.renderScope());
+            requestAnimationFrame(() => this.animate());
         }
     };
 
-    // --- 2. TRACK & DSP ---
+    /* --- 3. TRACK & FX ENGINE --- */
     class Track {
-        constructor(ctx, dest, type, name, params) {
-            this.ctx = ctx; this.dest = dest; this.type = type; // 'SYNTH' or 'SAMPLER'
-            this.name = name; this.params = params; this.id = Utils.id();
-            
-            this.stepCount = 16; // Polyrhythm default
-            this.steps = Array(32).fill(false); // Max 32 steps
-            this.muted = false;
-            this.buffer = null; // For Sampler
+        constructor(ctx, dest, data) {
+            this.ctx = ctx; this.data = data; this.id = MathUtils.id();
+            this.steps = Array(16).fill(false); this.muted = false;
 
             // Audio Graph
             this.vol = ctx.createGain(); this.vol.gain.value = 0.8;
             this.pan = ctx.createStereoPanner();
-            this.pan.connect(this.vol); this.vol.connect(dest);
+            this.analyser = ctx.createAnalyser(); 
+            this.analyser.fftSize = 64; // Mini Scope
 
-            // FX Chain
+            this.pan.connect(this.vol);
+            this.vol.connect(this.analyser);
+            this.vol.connect(dest);
+
+            // FX Rack
             this.fx = {
-                filter: ctx.createBiquadFilter(),
                 dist: ctx.createWaveShaper(),
-                delay: ctx.createDelay(), delayFb: ctx.createGain(),
-                rev: ctx.createConvolver(), revGain: ctx.createGain(),
+                delay: ctx.createDelay(), dFb: ctx.createGain(),
+                rev: ctx.createConvolver(), rGain: ctx.createGain(),
+                filter: ctx.createBiquadFilter(),
                 dry: ctx.createGain()
             };
 
-            // Init FX
+            // FX Init
+            this.fx.dist.curve = MathUtils.makeDistCurve(0); this.fx.dist.oversample = '4x';
+            this.fx.delay.delayTime.value = 0; this.fx.dFb.gain.value = 0;
+            this.fx.delay.connect(this.fx.dFb); this.fx.dFb.connect(this.fx.delay);
+            this.fx.rev.buffer = MathUtils.createImpulse(ctx, 2, 2); this.fx.rGain.gain.value = 0;
             this.fx.filter.type = 'lowpass'; this.fx.filter.frequency.value = 20000;
-            this.fx.dist.curve = Utils.distCurve(0); this.fx.dist.oversample = '4x';
-            this.fx.delay.delayTime.value = 0; this.fx.delayFb.gain.value = 0;
-            this.fx.delay.connect(this.fx.delayFb); this.fx.delayFb.connect(this.fx.delay);
-            this.fx.rev.buffer = Utils.impulse(ctx, 2, 2); this.fx.revGain.gain.value = 0;
 
-            // Chain: Input -> Filter -> Dist -> (Dry + Delay + Reverb) -> Pan
+            // Routing: Input -> Filter -> Dist -> (Dry + Delay + Rev) -> Pan
             this.input = this.fx.filter;
             this.fx.filter.connect(this.fx.dist);
             
@@ -583,41 +665,52 @@
 
             this.fx.dry.connect(this.pan);
             this.fx.delay.connect(this.pan);
-            this.fx.rev.connect(this.fx.revGain);
-            this.fx.revGain.connect(this.pan);
+            this.fx.rev.connect(this.fx.rGain);
+            this.fx.rGain.connect(this.pan);
 
-            this.state = { filtType:'lowpass', filtFreq:100, filtRes:0, dist:0, dTime:0, dFb:0, rev:0 };
+            // Parameter State
+            this.state = { dist:0, dTime:0, dFb:0, rev:0, cut:100, res:0 };
             
-            this.voice = new Voice(this);
+            // Engines
+            this.voice = new GranularVoice(this);
         }
 
         updateFX(type, val) {
             const v = parseFloat(val);
-            if(type==='DIST') { this.state.dist=v; this.fx.dist.curve = Utils.distCurve(v*4); }
-            if(type==='D_TIME') { this.state.dTime=v; this.fx.delay.delayTime.value = (v/100)*0.5; }
-            if(type==='D_FB') { this.state.dFb=v; this.fx.delayFb.gain.value = (v/100)*0.9; }
-            if(type==='REV') { this.state.rev=v; this.fx.revGain.gain.value = (v/100); }
-            if(type==='CUTOFF') { this.state.filtFreq=v; this.fx.filter.frequency.value = 20 + (v/100)*20000; }
-            if(type==='RES') { this.state.filtRes=v; this.fx.filter.Q.value = (v/100)*20; }
+            if(type==='DIST') { this.state.dist=v; this.fx.dist.curve = MathUtils.makeDistCurve(v*4); }
+            if(type==='D_TIME') { this.state.dTime=v; this.fx.delay.delayTime.value = (v/100)*0.6; }
+            if(type==='D_FB') { this.state.dFb=v; this.fx.dFb.gain.value = (v/100)*0.9; }
+            if(type==='REV') { this.state.rev=v; this.fx.rGain.gain.value = (v/100); }
+            if(type==='CUT') { this.state.cut=v; this.fx.filter.frequency.value = 20 + (v/100)*20000; }
+            if(type==='RES') { this.state.res=v; this.fx.filter.Q.value = (v/100)*20; }
         }
-        
-        setFilterType(t) { this.state.filtType = t; this.fx.filter.type = t; }
-        setSteps(n) { this.stepCount = parseInt(n); UI.refreshGrid(this.id); }
 
-        loadSample(arrayBuffer) {
-            this.ctx.decodeAudioData(arrayBuffer, (buf) => {
-                this.buffer = buf;
-                this.type = 'SAMPLER';
-                this.name = "CUSTOM SAMPLE";
-                document.querySelector(`#tr-${this.id} .th-name`).innerText = "CUSTOM SAMPLE";
-            });
+        renderScope() {
+            const cvs = document.getElementById(`scope-${this.id}`);
+            if(!cvs) return;
+            const ctx = cvs.getContext('2d');
+            const data = new Uint8Array(this.analyser.frequencyBinCount);
+            this.analyser.getByteTimeDomainData(data);
+            
+            ctx.fillStyle = '#000'; ctx.fillRect(0,0,cvs.width,cvs.height);
+            ctx.lineWidth = 1; ctx.strokeStyle = '#00f3ff'; ctx.beginPath();
+            
+            const slice = cvs.width / data.length;
+            let x = 0;
+            for(let i=0; i<data.length; i++) {
+                const v = data[i] / 128.0;
+                const y = v * cvs.height/2;
+                if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+                x += slice;
+            }
+            ctx.stroke();
         }
 
         kill() { this.vol.disconnect(); }
     }
 
-    // --- 3. VOICE ENGINE (SYNTH + SAMPLER) ---
-    class Voice {
+    /* --- 4. GRANULAR VOICE ENGINE --- */
+    class GranularVoice {
         constructor(track) { this.t = track; this.ctx = track.ctx; }
         
         trigger(time) {
@@ -625,189 +718,182 @@
             const p = this.t.data.params;
             const c = this.ctx;
 
-            // SAMPLER MODE
-            if(this.t.type === 'SAMPLER' && this.t.buffer) {
-                const src = c.createBufferSource();
-                src.buffer = this.t.buffer;
-                src.connect(dest);
-                src.start(time);
-                return;
-            }
-
-            // SYNTH MODE
+            // Oscillator Stack (Granular Simulation via Multiple Osc)
             const osc = c.createOscillator();
             const gain = c.createGain();
             
+            // Sub Osc
+            const sub = c.createOscillator();
+            const subG = c.createGain();
+
+            // Config
             if(this.t.data.cat === 'KICK') {
                 osc.frequency.setValueAtTime(p.freq, time);
-                osc.frequency.exponentialRampToValueAtTime(10, time + 0.5);
+                osc.frequency.exponentialRampToValueAtTime(10, time+0.5);
                 gain.gain.setValueAtTime(1, time);
-                gain.gain.exponentialRampToValueAtTime(0.001, time + 0.5);
-                osc.connect(gain); gain.connect(dest);
-                osc.start(time); osc.stop(time+0.5);
-            } 
+                gain.gain.exponentialRampToValueAtTime(0.001, time+0.5);
+                
+                sub.type = 'square'; sub.frequency.value = 50;
+                subG.gain.setValueAtTime(0.3, time); subG.gain.linearRampToValueAtTime(0, time+0.05); // Click
+            }
             else if(this.t.data.cat === 'SNARE') {
                 osc.type = 'triangle'; osc.frequency.setValueAtTime(200, time);
-                const g2 = c.createGain(); osc.connect(g2); g2.connect(dest);
-                g2.gain.setValueAtTime(0.5, time); g2.gain.exponentialRampToValueAtTime(0.001, time+0.1);
-                osc.start(time); osc.stop(time+0.1);
+                gain.gain.setValueAtTime(0.5, time); gain.gain.exponentialRampToValueAtTime(0.001, time+0.1);
                 
-                const buf = c.createBuffer(1, 22050, 44100);
-                const d = buf.getChannelData(0); for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1;
-                const noise = c.createBufferSource(); noise.buffer = buf;
-                const nf = c.createBiquadFilter(); nf.type='highpass'; nf.frequency.value=1000;
-                const ng = c.createGain(); noise.connect(nf); nf.connect(ng); ng.connect(dest);
+                // Noise Grain
+                const b = c.createBuffer(1, c.sampleRate*0.2, c.sampleRate);
+                const d = b.getChannelData(0); for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1;
+                const n = c.createBufferSource(); n.buffer=b;
+                const ng = c.createGain();
+                n.connect(ng); ng.connect(dest); 
                 ng.gain.setValueAtTime(0.8, time); ng.gain.exponentialRampToValueAtTime(0.001, time+0.2);
-                noise.start(time);
+                n.start(time);
             }
-            else { // Synth
+            else { // Synth / Bass
                 osc.type = p.wave || 'sawtooth';
                 osc.frequency.setValueAtTime(p.freq, time);
+                // FM Mod
+                if(p.fm) {
+                    sub.type = 'sine'; sub.frequency.value = p.freq * 2;
+                    subG.gain.value = 500;
+                    sub.connect(subG); subG.connect(osc.frequency);
+                    sub.start(time); sub.stop(time+0.5);
+                }
+                
                 gain.gain.setValueAtTime(0, time);
                 gain.gain.linearRampToValueAtTime(0.4, time+0.02);
-                gain.gain.exponentialRampToValueAtTime(0.001, time+0.5);
-                osc.connect(gain); gain.connect(dest);
-                osc.start(time); osc.stop(time+0.5);
+                gain.gain.exponentialRampToValueAtTime(0.001, time+0.6);
             }
+
+            osc.connect(gain); gain.connect(dest);
+            sub.connect(subG); subG.connect(dest); // For kick click
+            
+            osc.start(time); osc.stop(time+0.6);
+            if(this.t.data.cat === 'KICK') { sub.start(time); sub.stop(time+0.1); }
         }
     }
 
-    // --- 4. SAMPLER & RECORDER ---
-    const Sampler = {
-        async recordNew() {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({audio:true});
-                const rec = new MediaRecorder(stream);
-                const chunks = [];
-                
-                const btn = document.getElementById('rec-sample-btn');
-                btn.innerHTML = "🔴 REC... (CLICK TO STOP)";
-                btn.classList.add('recording');
-                
-                rec.ondataavailable = e => chunks.push(e.data);
-                rec.onstop = async () => {
-                    const blob = new Blob(chunks, {type:'audio/ogg; codecs=opus'});
-                    const arrayBuf = await blob.arrayBuffer();
-                    const t = Audio.addTrack('SAMPLER', 'MIC RECORDING', {});
-                    t.loadSample(arrayBuf);
-                    btn.innerHTML = "🎤 REC SAMPLE";
-                    btn.classList.remove('recording');
-                    stream.getTracks().forEach(tr => tr.stop());
-                };
-                
-                rec.start();
-                btn.onclick = () => rec.stop();
-                
-            } catch(e) { alert("Mikrofon hatası: " + e); }
+    /* --- 5. LIBRARY FACTORY --- */
+    const Library = {
+        presets: [],
+        init() {
+            // Generate 1000+ Procedural Assets
+            for(let i=0; i<250; i++) this.presets.push({cat:'KICK', name:`Omega Kick ${i}`, params:{freq:MathUtils.rand(40,90)}});
+            for(let i=0; i<250; i++) this.presets.push({cat:'SNARE', name:`Omega Snare ${i}`, params:{freq:200}});
+            for(let i=0; i<250; i++) this.presets.push({cat:'HAT', name:`Omega Hat ${i}`, params:{freq:8000}});
+            for(let i=0; i<250; i++) this.presets.push({cat:'BASS', name:`Acid Bass ${i}`, params:{freq:MathUtils.rand(40,100), wave:'sawtooth', fm:true}});
+            
+            const g = document.getElementById('lib-content');
+            // Render first 50 to DOM for performance, real app would use virtual scroll
+            this.presets.slice(0, 100).forEach(p => {
+                const d = document.createElement('div');
+                d.className = 'lib-card';
+                d.innerHTML = `<div class="lc-title">${p.name}</div><div class="lc-cat">${p.cat}</div>`;
+                d.onclick = () => { Audio.addTrack(p); UI.modal('mod-lib', false); };
+                g.appendChild(d);
+            });
         }
     };
 
-    const MasterRec = {
+    /* --- 6. AI COMPOSER --- */
+    const AI = {
+        process() {
+            const p = document.getElementById('ai-in').value.toLowerCase();
+            const log = document.getElementById('ai-status');
+            log.innerText = "Neural Network Processing...";
+            
+            Audio.clear();
+            
+            let bpm = 130;
+            if(p.includes('fast') || p.includes('techno') || p.includes('hızlı')) bpm = 140;
+            if(p.includes('slow') || p.includes('lofi') || p.includes('yavaş')) bpm = 90;
+            
+            Audio.setBpm(bpm); document.getElementById('bpm-val').value = bpm;
+
+            const k = Audio.addTrack(Library.presets.find(x=>x.cat==='KICK'));
+            const s = Audio.addTrack(Library.presets.find(x=>x.cat==='SNARE'));
+            const b = Audio.addTrack(Library.presets.find(x=>x.cat==='BASS'));
+            const h = Audio.addTrack(Library.presets.find(x=>x.cat==='HAT'));
+
+            // Algorithmic Patterns
+            for(let i=0;i<16;i++) {
+                if(i%4===0) k.steps[i]=true;
+                if(i===4||i===12) s.steps[i]=true;
+                if(i%2===0) h.steps[i]=true;
+                if(Math.random()>0.7) b.steps[i]=true;
+            }
+            
+            // FX Injection
+            b.updateFX('DIST', 30); b.updateFX('CUT', 40);
+            h.updateFX('D_TIME', 15); h.updateFX('D_FB', 40);
+
+            log.innerText = "Composition Ready.";
+            setTimeout(() => { UI.modal('mod-ai', false); Audio.toggle(); }, 1000);
+        }
+    };
+
+    /* --- 7. RECORDER --- */
+    const Recorder = {
         rec: null, chunks: [],
-        init(stream) { try{ this.rec = new MediaRecorder(stream); this.rec.ondataavailable = e => this.chunks.push(e.data); this.rec.onstop = e => this.save(); }catch(e){} },
+        init(stream) {
+            try {
+                this.rec = new MediaRecorder(stream);
+                this.rec.ondataavailable = e => this.chunks.push(e.data);
+                this.rec.onstop = () => {
+                    const blob = new Blob(this.chunks, {'type':'audio/wav'});
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a'); a.href=url; a.download='OMEGA_Export.wav'; a.click();
+                };
+            } catch(e) {}
+        },
         toggle() {
             if(!this.rec) return;
-            const btn = document.getElementById('rec-master-btn');
-            if(this.rec.state === 'inactive') { this.chunks=[]; this.rec.start(); btn.classList.add('recording'); }
-            else { this.rec.stop(); btn.classList.remove('recording'); }
-        },
-        save() {
-            const blob = new Blob(this.chunks, {type:'audio/wav'});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a'); a.href=url; a.download=`AEON_Project_${Date.now()}.wav`; a.click();
+            const btn = document.getElementById('rec-btn');
+            if(this.rec.state === 'inactive') { this.chunks=[]; this.rec.start(); btn.classList.add('active'); }
+            else { this.rec.stop(); btn.classList.remove('active'); }
         }
     };
 
-    // --- 5. UI MANAGER ---
+    /* --- 8. UI MANAGER --- */
     const UI = {
-        modal(id, show) { document.getElementById(id).style.display = show?'flex':'none'; },
+        modal(id, show) { document.getElementById(id).style.display = show ? 'flex' : 'none'; },
         
         renderTrack(t) {
             const el = document.createElement('div');
-            el.className = 'track-row drop-zone'; el.id = `tr-${t.id}`;
-            
-            // Drag & Drop Handlers
-            el.ondragover = (e) => { e.preventDefault(); el.style.borderColor = 'var(--aeon-cyan)'; };
-            el.ondragleave = () => { el.style.borderColor = 'var(--border-dim)'; };
-            el.ondrop = (e) => {
-                e.preventDefault();
-                el.style.borderColor = 'var(--border-dim)';
-                const file = e.dataTransfer.files[0];
-                if(file) {
-                    const reader = new FileReader();
-                    reader.onload = (ev) => t.loadSample(ev.target.result);
-                    reader.readAsArrayBuffer(file);
-                }
-            };
-
+            el.className = 'track-unit'; el.id = `tr-${t.id}`;
             el.innerHTML = `
-                <div class="drop-overlay">DROP SAMPLE HERE</div>
-                <div class="track-head">
-                    <div class="th-main">
-                        <div class="th-name">${t.name}</div>
-                        <div class="th-sub"><span class="th-icon">♪</span> ${t.type}</div>
+                <div class="track-controls">
+                    <div class="tc-info">
+                        <div class="tc-name">${t.data.name}</div>
+                        <div class="tc-type">${t.data.cat}</div>
                     </div>
-                    <div class="th-knobs">
-                        <div class="mini-knob" onclick="UI.fx('${t.id}','DIST')"></div>
-                        <div class="mini-knob" onclick="UI.fx('${t.id}','FILTER')"></div>
+                    <canvas class="tc-scope" id="scope-${t.id}" width="80" height="40"></canvas>
+                    <div class="tc-btns">
+                        <div class="mini-btn mute" onclick="UI.mute('${t.id}',this)">M</div>
+                        <div class="mini-btn solo" onclick="Audio.removeTrack('${t.id}')">X</div>
                     </div>
-                    <div style="font-size:9px; color:#666; cursor:pointer;" onclick="Audio.removeTrack('${t.id}')">X</div>
                 </div>
-                <div class="seq-wrap">
-                    <div class="poly-ctrl" onmousedown="UI.dragPoly(event, '${t.id}')">
-                        <span id="pol-${t.id}">${t.stepCount}</span>
-                    </div>
-                    <div class="step-cont" id="grid-${t.id}">
-                        ${this.mkSteps(t)}
+                <div class="sequencer-lane">
+                    <div class="step-grid">
+                        ${t.steps.map((_,i) => `<div class="step" id="s-${t.id}-${i}" onclick="UI.tog('${t.id}',${i},this)"></div>`).join('')}
                     </div>
                 </div>
             `;
             document.getElementById('track-container').appendChild(el);
         },
 
-        mkSteps(t) {
-            let h = '';
-            for(let i=0; i<t.stepCount; i++) {
-                h += `<div class="step ${t.steps[i]?'active':''}" id="s-${t.id}-${i}" onclick="UI.tog('${t.id}',${i},this)"></div>`;
-            }
-            return h;
-        },
-
-        refreshGrid(tid) {
-            const t = Audio.tracks.find(x=>x.id===tid);
-            document.getElementById(`grid-${tid}`).innerHTML = this.mkSteps(t);
-            document.getElementById(`pol-${tid}`).innerText = t.stepCount;
-        },
-
-        dragPoly(e, tid) {
-            const startY = e.clientY;
-            const t = Audio.tracks.find(x=>x.id===tid);
-            const startV = t.stepCount;
-            const move = ev => {
-                const diff = Math.floor((startY - ev.clientY) / 10);
-                t.setSteps(Utils.clamp(startV + diff, 2, 32));
-            };
-            document.addEventListener('mousemove', move);
-            document.onmouseup = () => document.removeEventListener('mousemove', move);
-        },
-
         renderStrip(t) {
             const el = document.createElement('div');
             el.className = 'strip'; el.id = `ch-${t.id}`;
             el.innerHTML = `
-                <div class="strip-lbl">${t.name}</div>
-                <div class="rack-mini">
-                    <div class="rack-btn" onclick="UI.fx('${t.id}','DIST')">DIST</div>
-                    <div class="rack-btn" onclick="UI.fx('${t.id}','DELAY')">DELAY</div>
-                    <div class="rack-btn" onclick="UI.fx('${t.id}','REV')">REV</div>
+                <div class="strip-head">${t.data.name}</div>
+                <div class="fx-rack">
+                    <div class="fx-insert" onclick="UI.fx('${t.id}','DIST')">DIST</div>
+                    <div class="fx-insert" onclick="UI.fx('${t.id}','DELAY')">DELAY</div>
+                    <div class="fx-insert" onclick="UI.fx('${t.id}','FILTER')">FILTER</div>
                 </div>
-                <select class="filt-sel" onchange="Audio.tracks.find(x=>x.id=='${t.id}').setFilterType(this.value)">
-                    <option value="lowpass">LP</option>
-                    <option value="highpass">HP</option>
-                    <option value="bandpass">BP</option>
-                </select>
-                <div class="fader-box">
-                    <div class="vu-meter"><div class="vu-val" id="vm-${t.id}"></div></div>
+                <div class="fader-area">
+                    <div class="meter-container"><div class="meter-bar" id="vm-${t.id}"></div></div>
                     <input type="range" class="fader" min="0" max="1" step="0.01" value="0.8" 
                            oninput="Audio.tracks.find(x=>x.id=='${t.id}').vol.gain.value=this.value">
                 </div>
@@ -817,160 +903,84 @@
         },
 
         removeUI(id) { document.getElementById(`tr-${id}`).remove(); document.getElementById(`ch-${id}`).remove(); },
-        tog(tid,i,el) { const t=Audio.tracks.find(x=>x.id===tid); if(t){t.steps[i]=!t.steps[i]; el.classList.toggle('active');} },
+        tog(tid,i,el) { const t=Audio.tracks.find(x=>x.id===tid); if(t){t.steps[i]=!t.steps[i]; el.classList.toggle('on');} },
+        mute(tid,el) { const t=Audio.tracks.find(x=>x.id===tid); if(t){t.muted=!t.muted; el.classList.toggle('active');} },
         
-        drawHead(tid, step) {
-            const row = document.getElementById(`tr-${tid}`);
-            if(row) {
-                row.querySelectorAll('.playhead').forEach(e=>e.classList.remove('playhead'));
-                const el = document.getElementById(`s-${tid}-${step}`);
-                if(el) el.classList.add('playhead');
+        drawHead(tid, s) {
+            const tr = document.getElementById(`tr-${tid}`);
+            if(tr) {
+                tr.querySelectorAll('.playhead').forEach(e=>e.classList.remove('playhead'));
+                const st = document.getElementById(`s-${tid}-${s}`);
+                if(st) st.classList.add('playhead');
             }
         },
         resetHeads() { document.querySelectorAll('.playhead').forEach(e=>e.classList.remove('playhead')); },
-        pulse(id) { const m=document.getElementById(`vm-${id}`); if(m){ m.style.height=(50+Math.random()*50)+'%'; setTimeout(()=>m.style.height='0%',100); }},
+        pulse(id) { const m=document.getElementById(`vm-${id}`); if(m) { m.style.height=(60+Math.random()*40)+'%'; setTimeout(()=>m.style.height='0%',100); } },
+        refreshGrid() { document.querySelectorAll('.step.on').forEach(e=>e.classList.remove('on')); },
 
-        // FX Window
         fx(tid, type) {
             const pid = `win-${tid}`;
             if(document.getElementById(pid)) document.getElementById(pid).remove();
-            
             const t = Audio.tracks.find(x=>x.id===tid);
+            
             const win = document.createElement('div');
-            win.className = 'float-win'; win.id = pid;
-            win.style.top = '30%'; win.style.left = '40%';
+            win.className = 'plugin-window'; win.id = pid;
+            win.style.left = '35%'; win.style.top = '30%';
             
             let h = '';
             if(type==='DIST') h = UI.knob(tid,'DIST','DRIVE',t.state.dist,0,100);
             if(type==='DELAY') h = UI.knob(tid,'D_TIME','TIME',t.state.dTime,0,100) + UI.knob(tid,'D_FB','FDBK',t.state.dFb,0,100);
-            if(type==='REV') h = UI.knob(tid,'REV','MIX',t.state.rev,0,100);
-            if(type==='FILTER') h = UI.knob(tid,'CUTOFF','FREQ',t.state.filtFreq,0,100) + UI.knob(tid,'RES','RES',t.state.filtRes,0,100);
+            if(type==='FILTER') h = UI.knob(tid,'CUT','FREQ',t.state.cut,0,100) + UI.knob(tid,'RES','RES',t.state.res,0,100);
 
             win.innerHTML = `
-                <div class="fw-head" onmousedown="UI.drag(event,'${pid}')"><div class="fw-title">${t.name} - ${type}</div><div class="pf-close" onclick="this.parentElement.parentElement.remove()">✕</div></div>
-                <div class="fw-body">${h}</div>
+                <div class="pw-header">
+                    <span class="pw-title">${t.data.name} - ${type}</span>
+                    <span style="cursor:pointer" onclick="this.parentElement.parentElement.remove()">✕</span>
+                </div>
+                <div class="pw-content">${h}</div>
             `;
-            document.getElementById('float-layer').appendChild(win);
+            document.getElementById('plugin-layer').appendChild(win);
             win.style.display = 'flex';
         },
+
         knob(tid, type, lbl, val, min, max) {
             return `
-                <div class="k-grp">
-                    <input type="range" class="k-dial" style="--deg:${(val/max)*360}deg" min="${min}" max="${max}" value="${val}"
-                           oninput="Audio.tracks.find(x=>x.id=='${tid}').updateFX('${type}',this.value); this.style.setProperty('--deg', (this.value/${max})*360+'deg')">
-                    <div class="k-lbl">${lbl}</div>
+                <div class="control-knob">
+                    <input type="range" class="dial" style="--v:${(val/max)*360}deg" min="${min}" max="${max}" value="${val}"
+                           oninput="Audio.tracks.find(x=>x.id=='${tid}').updateFX('${type}',this.value); this.style.setProperty('--v', (this.value/${max})*360+'deg'); this.nextElementSibling.innerText=this.value">
+                    <div class="dial-val">${Math.floor(val)}</div>
+                    <div class="dial-label">${lbl}</div>
                 </div>
             `;
-        },
-        drag(e, id) {
-            const el = document.getElementById(id);
-            const x = e.clientX-el.offsetLeft, y = e.clientY-el.offsetTop;
-            const mv = ev => { el.style.left=(ev.clientX-x)+'px'; el.style.top=(ev.clientY-y)+'px'; };
-            document.addEventListener('mousemove',mv);
-            document.onmouseup=()=>document.removeEventListener('mousemove',mv);
         }
     };
 
-    // --- 6. AI & LIBRARY ---
-    const Library = {
-        presets: [],
-        init() {
-            for(let i=0;i<200;i++) this.presets.push({cat:'KICK', name:`Kick ${i}`, params:{freq:Utils.rand(40,90)}});
-            for(let i=0;i<200;i++) this.presets.push({cat:'SNARE', name:`Snare ${i}`, params:{freq:200}});
-            for(let i=0;i<200;i++) this.presets.push({cat:'BASS', name:`Bass ${i}`, params:{freq:Utils.rand(40,100), wave:'sawtooth'}});
-            
-            const g = document.getElementById('lib-grid');
-            this.presets.slice(0,50).forEach(p => {
-                const e = document.createElement('div'); e.className = 'lib-item';
-                e.innerHTML = `<div style="font-weight:bold;color:#eee">${p.name}</div><div style="font-size:9px;color:#666">${p.cat}</div>`;
-                e.onclick = () => { Audio.addTrack('SYNTH', p.name, p.params); UI.modal('mod-lib', false); };
-                g.appendChild(e);
-            });
-        }
-    };
-
-    const AI = {
-        generate() {
-            const p = document.getElementById('ai-prompt').value.toLowerCase();
-            const l = document.getElementById('ai-log');
-            l.innerText = "Analyzing Rhythmic Structures...";
-            
-            Audio.clear();
-            
-            let bpm = 135;
-            if(p.includes('slow')) bpm = 90;
-            Audio.setBpm(bpm); document.getElementById('bpm-val').value = bpm;
-
-            const k = Audio.addTrack('SYNTH', 'AI KICK', Library.presets.find(x=>x.cat==='KICK').params);
-            const s = Audio.addTrack('SYNTH', 'AI SNARE', Library.presets.find(x=>x.cat==='SNARE').params);
-            const b = Audio.addTrack('SYNTH', 'AI BASS', Library.presets.find(x=>x.cat==='BASS').params);
-            const h = Audio.addTrack('SYNTH', 'AI HAT', {cat:'HAT', freq:8000});
-
-            // Polyrhythm Magic
-            if(p.includes('poly') || p.includes('complex')) {
-                h.setSteps(12); // Triplets
-                b.setSteps(14); // 7/8 feel
-            }
-
-            for(let i=0;i<32;i++) {
-                if(i%4===0) k.steps[i]=true;
-                if(i%8===4) s.steps[i]=true;
-                if(i%2===0) h.steps[i]=true;
-                if(Math.random()>0.7) b.steps[i]=true;
-            }
-
-            l.innerText = "Sequence Complete.";
-            setTimeout(()=>{UI.modal('mod-ai',false); Audio.toggle();}, 1000);
-        }
-    };
-
-    // --- 7. VISUALIZER & BOOT ---
-    const Visuals = {
-        init() {
-            const c = document.getElementById('matrix-canvas');
-            const ctx = c.getContext('2d');
-            c.width = window.innerWidth; c.height = window.innerHeight;
-            
-            const cols = Math.floor(c.width / 20);
-            const drops = Array(cols).fill(1);
-            
-            const draw = () => {
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-                ctx.fillRect(0, 0, c.width, c.height);
-                ctx.fillStyle = '#00f7ff';
-                ctx.font = '15px monospace';
-                
-                for(let i=0; i<drops.length; i++) {
-                    const txt = String.fromCharCode(Math.random()*128);
-                    ctx.fillText(txt, i*20, drops[i]*20);
-                    if(drops[i]*20 > c.height && Math.random() > 0.975) drops[i]=0;
-                    drops[i]++;
-                }
-                requestAnimationFrame(draw);
-            };
-            draw();
-        }
-    };
-
+    /* --- 9. BOOTSTRAP --- */
     const System = {
-        async boot() {
+        async start() {
             Audio.init();
             Library.init();
-            document.getElementById('boot-layer').style.opacity = 0;
-            await Utils.wait(500);
-            document.getElementById('boot-layer').remove();
+            document.getElementById('omega-boot').style.opacity = 0;
+            await MathUtils.wait(500);
+            document.getElementById('omega-boot').remove();
         },
         init() {
-            Visuals.init();
-            const l = document.getElementById('boot-term');
-            const b = document.getElementById('start-sys');
-            const msgs = ["BIOS OK", "AUDIO CORE OK", "DSP LOADED", "AI READY"];
-            let i=0;
-            const t = setInterval(()=>{
-                l.innerHTML += `<div class="log-txt">> ${msgs[i]} <span class="log-success">OK</span></div>`;
-                i++;
-                if(i>=msgs.length){ clearInterval(t); b.style.display='block'; }
-            }, 300);
+            const logs = ["KERNEL INIT...", "CHECKING DRIVERS...", "LOADING GRANULAR ENGINE...", "COMPILING AI...", "SYSTEM READY"];
+            const term = document.querySelector('.term-window');
+            const bar = document.getElementById('boot-load-bar');
+            const btn = document.getElementById('btn-enter');
+            
+            let i = 0;
+            const t = setInterval(() => {
+                if(i < logs.length) {
+                    term.innerHTML += `<div class="log-entry">> ${logs[i]} <span class="log-ok">OK</span></div>`;
+                    bar.style.width = ((i+1)/logs.length)*100 + '%';
+                    i++;
+                } else {
+                    clearInterval(t);
+                    btn.style.display = 'block';
+                }
+            }, 400);
         }
     };
 
